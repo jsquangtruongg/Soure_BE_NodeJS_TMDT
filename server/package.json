@@ -2,9 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon sever.js",
+    "dev": "nodemon server.js",
     "start": "node server.js"
   },
   "repository": {
