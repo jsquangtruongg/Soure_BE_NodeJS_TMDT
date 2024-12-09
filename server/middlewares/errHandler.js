@@ -10,6 +10,6 @@ export const errorHandle = (error, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   return res.status(statusCode).json({
     success: false,
-    mes: error.message,
+    mes: error?.message,
   });
 };
