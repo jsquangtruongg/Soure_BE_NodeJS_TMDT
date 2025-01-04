@@ -30,4 +30,6 @@ router.put(
 router.put("/:pid", [verifyAccessToken, isAdmin], controllers.updateProduct);
 router.delete("/:pid", [verifyAccessToken, isAdmin], controllers.deleteProduct);
 router.get("/oneProduct/:pid", controllers.getProduct);
+
+router.get("/product/:pid/variant/:variantId", controllers.getVariant);
 export default router;

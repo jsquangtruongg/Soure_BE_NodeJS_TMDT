@@ -2,16 +2,17 @@ import { json } from "express";
 import Product from "../models/product.js";
 import asyncHandler from "express-async-handler";
 import slugify from "slugify";
-import ProductCategory from "../models/ProductCategory.js";
+import Brand from "../models/Brands.js";
 
 export const createProduct = asyncHandler(async (req, res) => {
   if (Object.keys(req.body).length === 0) {
     return res.status(400).json({ success: false, message: "Missing inputs" });
   }
-  if (!req.body.title) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Title is required" });
+  if (!req.body.title || !req.body.brandId) {
+    return res.status(400).json({
+      success: false,
+      message: "Tiêu đề và ID thương hiệu là bắt buộc",
+    });
   }
 
   req.body.slug = slugify(req.body.title, { lower: true });
@@ -22,16 +23,14 @@ export const createProduct = asyncHandler(async (req, res) => {
       .status(400)
       .json({ success: false, message: "Slug already exists" });
   }
-  const { category } = req.body;
-  const foundCategory = await ProductCategory.findById(category);
-  if (!foundCategory) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Category not found" });
-  }
+
   const newProduct = await Product.create(req.body);
-  foundCategory.products.push(newProduct._id);
-  await foundCategory.save();
+
+  await Brand.findByIdAndUpdate(
+    req.body.brandId,
+    { $push: { products: newProduct._id } },
+    { new: true }
+  );
 
   return res.status(201).json({
     success: true,
@@ -42,10 +41,53 @@ export const createProduct = asyncHandler(async (req, res) => {
 
 export const getProduct = asyncHandler(async (req, res) => {
   const { pid } = req.params;
-  const product = await Product.findById(pid);
+  const { variantId } = req.query;
+  const product = await Product.findById(pid).populate({
+    path: "variants",
+  });
+
+  if (variantId) {
+    const variant = product.variants.find(
+      (v) => v._id.toString() === variantId
+    );
+
+    if (!variant) {
+      return res.status(404).json({
+        success: false,
+        message: "Variant not found",
+      });
+    }
+  }
+
   return res.status(200).json({
     success: product ? true : false,
     oneProductData: product ? product : "Cannot get Product",
+  });
+});
+
+export const getVariant = asyncHandler(async (req, res) => {
+  const { pid, variantId } = req.params;
+  const product = await Product.findById(pid).populate("variants");
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  const variant = product.variants.find((v) => v._id.toString() === variantId);
+
+  if (!variant) {
+    return res.status(404).json({
+      success: false,
+      message: "Variant not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    variantData: variant,
   });
 });
 
@@ -103,7 +145,9 @@ export const getAllProduct = asyncHandler(async (req, res) => {
   const page = +req.query.page || 1;
   const limit = req.query.limit || process.env.LIMIT_PRODUCT || 10;
   const skip = (page - 1) * limit;
-  queryCommand.skip(skip).limit(limit);
+  queryCommand.skip(skip).limit(limit).populate({
+    path: "variants",
+  });
 
   //Execute query
   //Số lượng sản phẩm thảo mãn điều kiên !== số lượng sp trả về một lần gọi API

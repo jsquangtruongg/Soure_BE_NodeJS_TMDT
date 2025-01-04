@@ -1,12 +1,19 @@
 import Brand from "../models/Brands.js";
 
 import asyncHandler from "express-async-handler";
+import ProductCategory from "../models/ProductCategory.js";
 
 export const createBrand = asyncHandler(async (req, res) => {
-  const { title } = req.body;
-  if (!title) throw new Error("Missing Input");
+  const { title, categoryId } = req.body;
+  if (!title || !categoryId) throw new Error("Missing Input");
 
   const newCreateBrand = await Brand.create(req.body);
+
+  await ProductCategory.findByIdAndUpdate(
+    categoryId,
+    { $push: { brands: newCreateBrand._id } },
+    { new: true }
+  );
   res.status(201).json({
     success: true,
     message: "Brand created successfully",
@@ -53,10 +60,9 @@ export const getOneBrand = asyncHandler(async (req, res) => {
 
 export const getAllBrand = asyncHandler(async (req, res) => {
   const response = await Brand.find().populate({
-    path: "category",
+    path: "products",
     populate: {
-      path: "products",
-      model: "Product",
+      path: "variants",
     },
   });
   return res.status(200).json({

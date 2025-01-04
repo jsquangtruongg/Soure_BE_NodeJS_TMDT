@@ -39,8 +39,7 @@ export const updatedProductCategory = asyncHandler(async (req, res) => {
 export const getProductCategory = asyncHandler(async (req, res) => {
   const { cid } = req.params;
   const getProductCategory = await ProductCategory.findById(cid).populate({
-    path: "products",
-    model: "Product",
+    path: "brands",
   });
   return res.status(200).json({
     success: getProductCategory ? true : false,
@@ -54,7 +53,7 @@ export const getAllProductCategory = asyncHandler(async (req, res) => {
   const response = await ProductCategory.find()
     .select("title _id image")
     .populate({
-      path: "products",
+      path: "brands",
       select: "title price slug image quantity description ",
     });
   return res.status(200).json({

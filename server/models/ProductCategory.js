@@ -12,7 +12,7 @@ var ProductCategorySchema = new mongoose.Schema(
     image: {
       type: Array,
     },
-    products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    brands: [{ type: mongoose.Schema.Types.ObjectId, ref: "Brand" }],
   },
   { timestamps: true }
 );

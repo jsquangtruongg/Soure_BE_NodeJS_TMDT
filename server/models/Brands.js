@@ -11,12 +11,13 @@ var brandSchema = new mongoose.Schema(
     },
     image: {
       type: Array,
-    },
-    category: {
+    },  
+    categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductCategory",
       required: true,
     },
+    products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
   { timestamps: true }
 );
