@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Declare the Schema of the Mongo model
 var productSchema = new mongoose.Schema(
   {
     title: {
@@ -19,7 +18,8 @@ var productSchema = new mongoose.Schema(
       required: true,
     },
     brand: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
       required: true,
     },
     price: {
@@ -28,7 +28,7 @@ var productSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Types.ObjectId,
-      ref: "Category",
+      ref: "ProductCategory",
     },
     quantity: {
       type: Number,
@@ -41,10 +41,45 @@ var productSchema = new mongoose.Schema(
     image: {
       type: Array,
     },
-    color: {
-      type: String,
-      enum: ["Black", "Red", "Grown"],
-    },
+    colors: [
+      {
+        color: {
+          type: String,
+          enum: [
+            "Black",
+            "Red",
+            "Grown",
+            "Blue",
+            "Green",
+            "Yellow",
+            "White",
+            "Purple",
+            "Orange",
+            "Gray",
+            "Grey",
+            "Pink",
+          ],
+          required: true,
+        },
+        image: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    variants: [
+      {
+        variant_name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        image: { type: String },
+      },
+    ],
     ratings: [
       {
         star: { type: Number },
@@ -61,8 +96,6 @@ var productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-//Export the model
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;

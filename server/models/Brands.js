@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 // Declare the Schema of the Mongo model
-var ProductCategorySchema = new mongoose.Schema(
+var brandSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -12,15 +12,16 @@ var ProductCategorySchema = new mongoose.Schema(
     image: {
       type: Array,
     },
-    products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductCategory",
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
 //Export the model
-const ProductCategory = mongoose.model(
-  "ProductCategory",
-  ProductCategorySchema
-);
+const Brand = mongoose.model("Brand", brandSchema);
 
-export default ProductCategory;
+export default Brand;

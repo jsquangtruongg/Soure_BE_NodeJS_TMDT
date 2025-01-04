@@ -14,6 +14,10 @@ router.put("/reset-password", controllers.resetPassword);
 router.get("/", [verifyAccessToken, isAdmin], controllers.getUsers);
 router.delete("/", [verifyAccessToken, isAdmin], controllers.deleteUser);
 router.put("/current", [verifyAccessToken], controllers.updateUser);
+router.put("/address/:uid", [verifyAccessToken], controllers.updateUserAddress);
+router.put("/cart", [verifyAccessToken], controllers.updateCart);
+
+
 router.put(
   "/:uid",
   [verifyAccessToken, isAdmin],

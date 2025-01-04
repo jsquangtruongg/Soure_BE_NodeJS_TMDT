@@ -1,7 +1,6 @@
 import ProductCategory from "../models/ProductCategory.js";
 import asyncHandler from "express-async-handler";
 
-
 export const createNewProductCategory = asyncHandler(async (req, res) => {
   const newProductCategory = await ProductCategory.create(req.body);
   return res.status(200).json({
@@ -39,8 +38,10 @@ export const updatedProductCategory = asyncHandler(async (req, res) => {
 
 export const getProductCategory = asyncHandler(async (req, res) => {
   const { cid } = req.params;
-  const getProductCategory = await ProductCategory.findById(cid);
-  console.log(getProductCategory?.id);
+  const getProductCategory = await ProductCategory.findById(cid).populate({
+    path: "products",
+    model: "Product",
+  });
   return res.status(200).json({
     success: getProductCategory ? true : false,
     getProductCategoryData: getProductCategory
@@ -50,7 +51,12 @@ export const getProductCategory = asyncHandler(async (req, res) => {
 });
 
 export const getAllProductCategory = asyncHandler(async (req, res) => {
-  const response = await ProductCategory.find().select("title _id");
+  const response = await ProductCategory.find()
+    .select("title _id image")
+    .populate({
+      path: "products",
+      select: "title price slug image quantity description ",
+    });
   return res.status(200).json({
     success: response ? true : false,
     getAllProductCategoryData: response
@@ -59,3 +65,19 @@ export const getAllProductCategory = asyncHandler(async (req, res) => {
   });
 });
 
+export const uploadImageProductCategory = asyncHandler(async (req, res) => {
+  const { cid } = req.params;
+  const response = await ProductCategory.findByIdAndUpdate(
+    cid,
+    {
+      $push: { image: { $each: req.files.map((el) => el.path) } },
+    },
+    { new: true }
+  );
+  return res.status(200).json({
+    success: response ? true : false,
+    uploadImageProductCategoryData: response
+      ? response
+      : "Cannot UpLoading Image",
+  });
+});
